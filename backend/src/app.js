@@ -14,6 +14,7 @@ const connectMongo = require("./config/mongo");
 
 const routes = require("./routes");
 const path = require("path");
+const pages = require("./routes/pages");
 
 const app = express();
 
@@ -88,6 +89,7 @@ app.get("/health", (req, res) => {
 });
 
 // Routes
+app.use("/", pages);
 app.use("/api", routes);
 
 // 404 handler
