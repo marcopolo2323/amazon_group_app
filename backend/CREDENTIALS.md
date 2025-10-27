@@ -10,7 +10,7 @@ Este documento contiene las credenciales para probar la aplicación Amazon Group
 - **Rol:** Cliente
 - **Descripción:** Cuenta de cliente para probar funcionalidades de reservas y pedidos
 
-### Afiliado
+### Afiliado 
 - **Email:** `maria.gonzalez@example.com` 
 - **Contraseña:** `123456`
 - **Rol:** Afiliado

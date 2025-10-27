@@ -11,7 +11,7 @@ async function listServices() {
 
 async function updateService(id, update) {
   const allowed = [
-    'category','title','description','price','images','locationText','subType','transaction','type','brand','peopleCount','contactEmail','location','status'
+    'category','title','description','price','images','locationText','subType','transaction','type','brand','peopleCount','contactEmail','contactPhone','contactWhatsApp','providerName','location','status','features','includesInfo','excludesInfo','cancellationPolicy','availability'
   ];
   const payload = {};
   for (const k of allowed) {

@@ -15,6 +15,9 @@ const serviceSchema = new Schema(
     currency: { type: String, default: "USD" },
     images: [{ type: String }],
     features: [{ type: String }],
+    includesInfo: [{ type: String }],
+    excludesInfo: [{ type: String }],
+    cancellationPolicy: { type: String },
     tags: [{ type: String }],
 
     // Location information
@@ -53,6 +56,9 @@ const serviceSchema = new Schema(
     brand: { type: String }, // marca (agua u otros)
     peopleCount: { type: Number, min: 0 }, // paquetes turísticos
     contactEmail: { type: String },
+    contactPhone: { type: String },
+    contactWhatsApp: { type: String },
+    providerName: { type: String },
 
     status: {
       type: String,

@@ -19,6 +19,7 @@ const Affiliate = require("../models/Affiliate");
 const Service = require("../models/Service");
 const Order = require("../models/Order");
 const Transaction = require("../models/Transaction");
+const Review = require("../models/Review");
 
 async function up() {
   await connectMongo();
@@ -34,6 +35,7 @@ async function up() {
       Service.deleteMany({}),
       Order.deleteMany({}),
       Transaction.deleteMany({}),
+      Review.deleteMany({}),
     ]);
   } catch (err) {
     console.error("Error clearing collections", err);
@@ -343,6 +345,37 @@ async function up() {
 
   const services = await Service.insertMany(servicesData);
   console.log(`Created ${services.length} services`);
+
+  // Create sample reviews to provide ratings for dashboard
+  const reviewsData = [
+    {
+      serviceId: services[0]._id,
+      userId: clients[0]._id,
+      rating: 5,
+      comment: "Excelente casa, muy cómoda y bien ubicada",
+    },
+    {
+      serviceId: services[1]._id,
+      userId: clients[1]._id,
+      rating: 4,
+      comment: "Buen servicio de taxi, puntual y seguro",
+    },
+    {
+      serviceId: services[2]._id,
+      userId: clients[0]._id,
+      rating: 5,
+      comment: "Catering delicioso y atención impecable",
+    },
+    {
+      serviceId: services[3]._id,
+      userId: clients[1]._id,
+      rating: 4,
+      comment: "Agua de buena calidad y entrega rápida",
+    },
+  ];
+
+  const reviews = await Review.insertMany(reviewsData);
+  console.log(`Created ${reviews.length} reviews`);
 
   // Create sample orders from clients for different services
   const ordersData = [
