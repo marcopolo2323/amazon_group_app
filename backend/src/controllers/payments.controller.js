@@ -23,33 +23,71 @@ function getWebhookUrl(req) {
   return `${base}/api/payments/mercadopago/webhook`;
 }
 
-// Crea preferencia y orden pendiente para Mercado Pago
+// Crea preferencia para Mercado Pago.
+// Si viene orderId, usa esa orden existente.
+// Si no, crea una nueva orden pendiente con los datos recibidos.
 async function createMercadoPagoPreference(req, res, next) {
   try {
     if (!process.env.MP_ACCESS_TOKEN) throw createError(500, 'MP_ACCESS_TOKEN no configurado');
     const clientId = req.user?.userId;
-    const bodySid = req.body?.serviceId;
-    const querySid = req.query?.serviceId;
-    const serviceId = bodySid || querySid;
-    if (!serviceId) throw createError(400, 'serviceId es requerido');
+    const bodyOrderId = req.body?.orderId || req.query?.orderId;
+    let order = null;
+    let service = null;
+    let price = 0;
 
-    const service = await Service.findById(serviceId);
-    if (!service) throw createError(404, 'Servicio no encontrado');
-    const price = Number(service.price || 0);
+    if (bodyOrderId) {
+      // Usar orden existente
+      order = await OrderService.getOrder(String(bodyOrderId), clientId);
+      service = await Service.findById(order.serviceId);
+      price = Number(order.amount || 0);
+    } else {
+      // Crear una nueva orden, validando campos requeridos por el modelo
+      const bodySid = req.body?.serviceId || req.query?.serviceId;
+      const serviceId = bodySid;
+      if (!serviceId) throw createError(400, 'serviceId es requerido');
+
+      service = await Service.findById(serviceId);
+      if (!service) throw createError(404, 'Servicio no encontrado');
+
+      // Validar campos requeridos para Order
+      const address = req.body?.address;
+      const notes = req.body?.notes;
+      const contactInfo = req.body?.contactInfo || {};
+      const bookingDetails = req.body?.bookingDetails || {};
+      const currency = req.body?.currency;
+
+      if (!address) throw createError(400, 'address es requerido');
+      if (!contactInfo?.name || !contactInfo?.phone || !contactInfo?.email) {
+        throw createError(400, 'contactInfo.name, contactInfo.phone y contactInfo.email son requeridos');
+      }
+
+      // Crea la orden en estado pending (split se hará al aprobar pago)
+      order = await OrderService.createOrder({
+        clientId,
+        serviceId,
+        paymentMethod: 'mercado_pago',
+        paymentStatus: 'pending',
+        address,
+        notes,
+        contactInfo,
+        bookingDetails,
+        currency,
+      });
+
+      price = Number(order.amount || service.price || 0);
+    }
+
     if (!Number.isFinite(price) || price <= 0) {
       throw createError(400, 'El servicio debe tener un precio mayor a 0');
     }
 
-    // Crea la orden en estado pending (split se hará al aprobar pago)
-    const order = await OrderService.createOrder({ clientId, serviceId, paymentMethod: 'mercado_pago', paymentStatus: 'pending' });
-
-    const currency = process.env.MP_CURRENCY_ID || 'PEN';
+    const currencyId = process.env.MP_CURRENCY_ID || 'PEN';
     const preference = {
       items: [
         {
-          title: service.title || 'Servicio',
+          title: (service && service.title) || 'Servicio',
           quantity: 1,
-          currency_id: currency,
+          currency_id: currencyId,
           unit_price: price,
         },
       ],
