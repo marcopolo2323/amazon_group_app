@@ -33,6 +33,50 @@ function htmlPage({ title, heading, message, extra }) {
 </html>`;
 }
 
+// Página principal
+router.get('/', (req, res) => {
+  const title = 'Amazon Group - Backend';
+  const heading = 'Amazon Group API';
+  const message = `
+    Esta es la API de Amazon Group. Consulta las páginas públicas:
+    <ul>
+      <li><a href="/privacy">Política de privacidad</a></li>
+      <li><a href="/terms">Términos y condiciones</a></li>
+      <li><a href="/health">Estado del servidor</a></li>
+    </ul>
+  `;
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.status(200).send(htmlPage({ title, heading, message }));
+});
+
+// Política de privacidad
+router.get('/privacy', (req, res) => {
+  const title = 'Política de privacidad';
+  const heading = 'Política de privacidad de Amazon Group';
+  const message = `
+    Esta aplicación recopila datos necesarios para la prestación del servicio (nombre, correo, teléfono) y
+    para el procesamiento de pagos y verificación de identidad de afiliados.
+    No compartimos datos con terceros salvo los estrictamente necesarios para operar (proveedores de pago,
+    almacenamiento de imágenes y autenticación). Puedes solicitar la eliminación de tus datos escribiendo a
+    <strong>${process.env.SUPPORT_EMAIL || 'support@amazongroup.com'}</strong>.
+  `;
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.status(200).send(htmlPage({ title, heading, message }));
+});
+
+// Términos y condiciones
+router.get('/terms', (req, res) => {
+  const title = 'Términos y condiciones';
+  const heading = 'Términos y condiciones del servicio';
+  const message = `
+    Al usar esta aplicación aceptas: (1) proporcionar información veraz, (2) cumplir con las políticas de uso
+    aceptable, (3) respetar las condiciones de pago, reembolsos y cancelaciones establecidas por los proveedores
+    y por la plataforma. La aplicación puede actualizar estos términos; el uso continuo implica aceptación.
+  `;
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.status(200).send(htmlPage({ title, heading, message }));
+});
+
 router.get('/order-confirmation', (req, res) => {
   const orderId = req.query.orderId || '';
   const success = req.query.success === 'true';
