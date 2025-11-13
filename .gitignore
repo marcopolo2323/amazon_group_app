@@ -36,6 +36,8 @@ web-build/
 # Expo / React Native
 .expo/
 .expo-shared/
+frontend/android/
+frontend/ios/
 
 # Backend uploads (use Cloudinary in production)
 backend/src/uploads/
