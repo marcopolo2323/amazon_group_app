@@ -13,7 +13,8 @@
     "get-ip": "node ./scripts/get-ip.js",
     "dev": "npm run get-ip && expo start",
     "tunnel": "expo start --tunnel",
-    "type-check": "npx tsc --noEmit"
+    "type-check": "npx tsc --noEmit",
+    "build:android": "eas build --platform android --profile preview"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -57,6 +58,10 @@
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
     "typescript": "~5.9.2"
+  },
+  "overrides": {
+    "metro": "0.80.12",
+    "metro-resolver": "0.80.12"
   },
   "private": true
 }
