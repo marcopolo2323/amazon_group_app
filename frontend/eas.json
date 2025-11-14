@@ -18,7 +18,8 @@
         "distribution": "internal",
         "env": {
           "NPM_CONFIG_LEGACY_PEER_DEPS": "true",
-          "NODE_ENV": "production"
+          "NODE_ENV": "production",
+          "EXPO_USE_COMMUNITY_AUTOLINKING": "0"
         }
       }
     },
