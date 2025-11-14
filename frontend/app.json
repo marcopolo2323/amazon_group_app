@@ -40,11 +40,11 @@
         "expo-build-properties",
         {
           "android": {
-            "minSdkVersion": 24,
+            "minSdkVersion": 23,
             "compileSdkVersion": 34,
             "targetSdkVersion": 34,
             "buildToolsVersion": "34.0.0",
-            "kotlinVersion": "1.9.24",
+            "kotlinVersion": "1.9.22",
             "newArchEnabled": false,
             "extraProguardRules": "-keep class com.facebook.react.** { *; }",
             "packagingOptions": {
@@ -69,7 +69,8 @@
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      "expo-font"
     ],
     "experiments": {
       "reactCompiler": false
