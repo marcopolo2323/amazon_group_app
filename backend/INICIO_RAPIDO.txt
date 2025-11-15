@@ -1,0 +1,116 @@
+╔════════════════════════════════════════════════════════════════════╗
+║                                                                    ║
+║          🚀 BACKEND AMAZON GROUP - INICIO RÁPIDO 🚀               ║
+║                                                                    ║
+╚════════════════════════════════════════════════════════════════════╝
+
+
+📋 PASO 1: VERIFICAR CONFIGURACIÓN
+═══════════════════════════════════════════════════════════════════
+
+Ejecuta este comando para verificar que todo esté configurado:
+
+    npm run verify
+
+Si ves ✓ en todo, ¡estás listo!
+Si ves ✗, sigue las instrucciones que aparecen.
+
+
+🔧 PASO 2: INICIAR SERVIDOR
+═══════════════════════════════════════════════════════════════════
+
+    npm run dev
+
+El servidor mostrará un diagnóstico automático.
+Busca estas líneas:
+
+    ✓ Database: Connected
+    ✓ Google OAuth: Configured
+    ✓ MercadoPago: Configured
+
+
+❌ SI GOOGLE LOGIN NO FUNCIONA
+═══════════════════════════════════════════════════════════════════
+
+1. Ejecuta:
+    npm run test:google
+
+2. Verifica que GOOGLE_CLIENT_ID esté en tu .env
+
+3. Ve a Google Cloud Console:
+   https://console.cloud.google.com/apis/credentials
+
+4. Asegúrate de que estos orígenes estén autorizados:
+   - http://localhost:8081
+   - http://localhost:3000
+
+5. Verifica que el Client ID sea el MISMO en frontend y backend
+
+
+❌ SI MERCADOPAGO NO FUNCIONA
+═══════════════════════════════════════════════════════════════════
+
+1. Ejecuta:
+    npm run test:mercadopago
+
+2. Si falla con error 401, el token no es válido
+
+3. Ve a MercadoPago Developers:
+   https://www.mercadopago.com.pe/developers/panel/credentials
+
+4. Copia el Access Token (Test o Production)
+
+5. Pégalo en tu .env:
+   MP_ACCESS_TOKEN=APP_USR-tu-token-aqui
+
+6. Reinicia el servidor
+
+
+📚 DOCUMENTACIÓN DISPONIBLE
+═══════════════════════════════════════════════════════════════════
+
+LEEME.md                  → Guía rápida en español
+RESUMEN_CAMBIOS.md        → Qué se cambió y por qué
+SOLUCION_PROBLEMAS.md     → Guía paso a paso
+TROUBLESHOOTING.md        → Problemas específicos detallados
+
+
+🎯 COMANDOS ÚTILES
+═══════════════════════════════════════════════════════════════════
+
+npm run verify            → Verifica toda la configuración
+npm run dev               → Inicia servidor (con diagnóstico)
+npm run test:google       → Prueba Google OAuth
+npm run test:mercadopago  → Prueba MercadoPago
+npm run seed              → Carga datos de prueba
+
+
+✅ CHECKLIST RÁPIDO
+═══════════════════════════════════════════════════════════════════
+
+Antes de probar desde tu app, verifica:
+
+[ ] npm run verify sin errores
+[ ] npm run dev inicia correctamente
+[ ] Diagnóstico muestra ✓ en Google OAuth
+[ ] Diagnóstico muestra ✓ en MercadoPago
+[ ] GOOGLE_CLIENT_ID es el mismo en frontend y backend
+[ ] MP_ACCESS_TOKEN es válido
+
+
+🆘 SI NADA FUNCIONA
+═══════════════════════════════════════════════════════════════════
+
+1. Ejecuta: npm run verify
+2. Copia el resultado completo
+3. Revisa los logs del servidor
+4. Consulta TROUBLESHOOTING.md
+5. Verifica las credenciales en los paneles oficiales
+
+
+═══════════════════════════════════════════════════════════════════
+                    ¡Listo para empezar! 🚀
+═══════════════════════════════════════════════════════════════════
+
+Ejecuta:  npm run verify
+Luego:    npm run dev

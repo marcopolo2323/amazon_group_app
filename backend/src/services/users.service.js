@@ -5,8 +5,14 @@ const createError = require('http-errors');
 async function createUser(input) {
   const exists = await User.findOne({ email: input.email });
   if (exists) throw createError(409, 'Email already registered');
-  const hashed = await hashPassword(input.password);
-  const user = await User.create({ ...input, password: hashed });
+  
+  // Solo hashear password si existe (para usuarios con Google OAuth, puede no tener password)
+  const userData = { ...input };
+  if (input.password) {
+    userData.password = await hashPassword(input.password);
+  }
+  
+  const user = await User.create(userData);
   return user;
 }
 

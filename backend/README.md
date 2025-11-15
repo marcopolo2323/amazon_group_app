@@ -20,7 +20,15 @@ RATE_LIMIT_MAX=120
 
 # Google OAuth (requerido para Login con Google)
 # Obtén el Client ID desde Google Cloud Console
+# https://console.cloud.google.com/apis/credentials
 GOOGLE_CLIENT_ID=tu_client_id_web.apps.googleusercontent.com
+GOOGLE_CLIENT_IDS=tu_client_id_web.apps.googleusercontent.com
+
+# MercadoPago (requerido para pagos)
+# Obtén el Access Token desde MercadoPago Developers
+# https://www.mercadopago.com.pe/developers/panel/credentials
+MP_ACCESS_TOKEN=APP_USR-tu-access-token-aqui
+MP_CURRENCY_ID=PEN
 
 # SMTP (opcional). Si no se configura, los correos se registran en consola
 # SMTP_HOST=smtp.tudominio.com

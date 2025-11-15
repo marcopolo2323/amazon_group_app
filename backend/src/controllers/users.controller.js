@@ -72,20 +72,44 @@ async function register(req, res, next) {
  async function googleLogin(req, res, next) {
    try {
      const { idToken } = req.body;
+     
+     if (!idToken) {
+       throw createError(400, 'idToken is required');
+     }
+
+     // Verificar que las credenciales de Google estén configuradas
+     if (!process.env.GOOGLE_CLIENT_ID && !process.env.GOOGLE_CLIENT_IDS) {
+       throw createError(500, 'Google OAuth not configured on server');
+     }
+
      const payload = await verifyGoogleIdToken(idToken);
-     if (!payload || !payload.email) throw createError(401, 'Invalid Google token');
+     if (!payload || !payload.email) {
+       throw createError(401, 'Invalid Google token');
+     }
+
      const { email, name, picture, sub } = payload;
      let user = await User.findOne({ email });
+     
      if (!user) {
-       user = await User.create({ role: 'client', name: name || email.split('@')[0], email, avatar: picture, googleId: sub });
+       // Crear nuevo usuario
+       user = await User.create({ 
+         role: 'client', 
+         name: name || email.split('@')[0], 
+         email, 
+         avatar: picture, 
+         googleId: sub 
+       });
      } else if (!user.googleId) {
+       // Vincular cuenta existente con Google
        user.googleId = sub;
        if (!user.avatar && picture) user.avatar = picture;
        await user.save();
      }
+     
      const token = signToken({ userId: user.id, role: user.role });
      res.json({ token, user });
    } catch (err) {
+     console.error('Google login error:', err.message);
      next(err);
    }
  }

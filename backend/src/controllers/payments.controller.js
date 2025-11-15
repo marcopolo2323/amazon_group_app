@@ -7,11 +7,22 @@ const OrderService = require('../services/orders.service');
 let mpClient = null;
 let mpPreference = null;
 let mpPayment = null;
-if (process.env.MP_ACCESS_TOKEN) {
-  mpClient = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
-  mpPreference = new Preference(mpClient);
-  mpPayment = new Payment(mpClient);
+
+function initializeMercadoPago() {
+  if (!mpClient && process.env.MP_ACCESS_TOKEN) {
+    try {
+      mpClient = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
+      mpPreference = new Preference(mpClient);
+      mpPayment = new Payment(mpClient);
+      console.log('✓ MercadoPago SDK initialized successfully');
+    } catch (error) {
+      console.error('✗ MercadoPago SDK initialization failed:', error.message);
+    }
+  }
 }
+
+// Inicializar al cargar el módulo
+initializeMercadoPago();
 
 function getFrontendUrl(req) {
   const envUrl = process.env.FRONTEND_URL || `http://localhost:${process.env.PORT || 5000}`;
@@ -28,7 +39,16 @@ function getWebhookUrl(req) {
 // Si no, crea una nueva orden pendiente con los datos recibidos.
 async function createMercadoPagoPreference(req, res, next) {
   try {
-    if (!process.env.MP_ACCESS_TOKEN) throw createError(500, 'MP_ACCESS_TOKEN no configurado');
+    if (!process.env.MP_ACCESS_TOKEN) {
+      console.error('✗ MP_ACCESS_TOKEN not configured in environment variables');
+      throw createError(500, 'MercadoPago no está configurado en el servidor. Contacta al administrador.');
+    }
+
+    if (!mpClient || !mpPreference) {
+      console.error('✗ MercadoPago SDK not initialized');
+      throw createError(500, 'Error al inicializar MercadoPago. Verifica las credenciales.');
+    }
+
     const clientId = req.user?.userId;
     const bodyOrderId = req.body?.orderId || req.query?.orderId;
     let order = null;
@@ -125,12 +145,17 @@ async function createMercadoPagoPreference(req, res, next) {
 // Webhook: confirma pagos y completa la orden generando la transacción
 async function mercadopagoWebhook(req, res, next) {
   try {
+    console.log('📥 Webhook received from MercadoPago');
+    
     // MP envía tanto GET como POST; soportamos ambos
     const query = req.query || {};
     const body = req.body || {};
 
     const topic = query.topic || query.type || body?.type;
     let paymentId = query[topic === 'payment' ? 'id' : 'resource'] || body?.data?.id || body?.id;
+
+    console.log('  Topic:', topic);
+    console.log('  Payment ID:', paymentId);
 
     // Algunos envíos vienen como /v1/payments/{id}
     if (typeof paymentId === 'string' && paymentId.includes('/')) {
@@ -139,8 +164,13 @@ async function mercadopagoWebhook(req, res, next) {
     }
 
     if (!paymentId) {
-      // Aceptamos 200 para evitar reintentos infinitos, pero registramos
+      console.log('  ⚠ No payment ID found, acknowledging anyway');
       return res.status(200).json({ received: true });
+    }
+
+    if (!mpPayment) {
+      console.error('  ✗ MercadoPago SDK not initialized');
+      return res.status(200).json({ error: 'SDK not initialized' });
     }
 
     // Obtenemos el pago desde MP y verificamos estado
@@ -148,14 +178,22 @@ async function mercadopagoWebhook(req, res, next) {
     const status = payment?.status;
     const orderId = payment?.external_reference;
 
+    console.log('  Payment status:', status);
+    console.log('  Order ID:', orderId);
+
     if (status === 'approved' && orderId) {
+      console.log('  ✓ Payment approved, completing order...');
       await OrderService.completeOrderPayment(orderId, String(paymentId));
+      console.log('  ✓ Order completed successfully');
+    } else {
+      console.log('  ℹ Payment not approved or no order ID');
     }
 
     return res.status(200).json({ ok: true });
   } catch (err) {
     // MP reintenta si no hay 200; evitamos loops devolviendo 200
-    console.error('Webhook MP error:', err?.message);
+    console.error('✗ Webhook MP error:', err?.message);
+    console.error('  Stack:', err?.stack);
     try { return res.status(200).json({ ok: true }); } catch (_) { /* noop */ }
   }
 }

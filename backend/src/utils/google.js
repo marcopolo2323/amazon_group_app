@@ -17,10 +17,15 @@ function getAllowedAudiences() {
 }
 
 async function verifyGoogleIdToken(idToken) {
-  const audiences = getAllowedAudiences();
-  const ticket = await getClient().verifyIdToken({ idToken, audience: audiences });
-  const payload = ticket.getPayload();
-  return payload;
+  try {
+    const audiences = getAllowedAudiences();
+    const ticket = await getClient().verifyIdToken({ idToken, audience: audiences });
+    const payload = ticket.getPayload();
+    return payload;
+  } catch (error) {
+    console.error('Google token verification failed:', error.message);
+    throw new Error(`Google authentication failed: ${error.message}`);
+  }
 }
 
 module.exports = { verifyGoogleIdToken };

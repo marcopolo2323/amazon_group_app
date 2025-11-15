@@ -10,6 +10,7 @@ const categories = require('./categories');
 const uploads = require('./uploads');
 const payments = require('./payments');
 const reviews = require('./reviews');
+const configCheck = require('./config-check');
 
 const router = Router();
 
@@ -25,6 +26,7 @@ router.use('/categories', categories);
 router.use('/uploads', uploads);
 router.use('/payments', payments);
 router.use('/reviews', reviews);
+router.use('/config', configCheck);
 
 module.exports = router;
 
