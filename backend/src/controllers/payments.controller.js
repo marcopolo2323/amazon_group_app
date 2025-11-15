@@ -121,11 +121,29 @@ async function createMercadoPagoPreference(req, res, next) {
       // auto_return es opcional; lo omitimos para evitar 400 cuando MP valida back_urls
     };
 
-    const { body } = await mpPreference.create({ body: preference });
+    const response = await mpPreference.create({ body: preference });
+    
+    // El SDK v2 puede devolver la respuesta en body o directamente
+    const data = response.body || response;
+    
+    console.log('✓ Preferencia de MercadoPago creada:', {
+      id: data.id,
+      init_point: data.init_point ? 'Generado' : 'No disponible',
+      sandbox_init_point: data.sandbox_init_point ? 'Generado' : 'No disponible'
+    });
+    
     // Fallback: algunos entornos no devuelven init_point; construimos URL con preference id
     const checkoutBase = process.env.MP_CHECKOUT_BASE || 'https://www.mercadopago.com/checkout/v1/redirect?pref_id=';
-    const url = body?.init_point || body?.sandbox_init_point || (body?.id ? `${checkoutBase}${encodeURIComponent(body.id)}` : undefined);
-    return res.json({ init_point: body?.init_point, sandbox_init_point: body?.sandbox_init_point, preference_id: body?.id, external_reference: preference.external_reference, url });
+    const url = data.init_point || data.sandbox_init_point || (data.id ? `${checkoutBase}${encodeURIComponent(data.id)}` : undefined);
+    
+    return res.json({ 
+      id: data.id,
+      init_point: data.init_point, 
+      sandbox_init_point: data.sandbox_init_point, 
+      preference_id: data.id, 
+      external_reference: preference.external_reference, 
+      url 
+    });
   } catch (err) {
     // Propaga errores propios (createError) tal cual
     if (err?.status) return next(err);

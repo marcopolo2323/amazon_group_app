@@ -10,6 +10,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "test:google": "node test-google-oauth.js",
     "test:mercadopago": "node test-mercadopago.js",
+    "test:payment-endpoint": "node test-payment-endpoint.js",
     "test:config": "node test-google-oauth.js && node test-mercadopago.js",
     "verify": "node verify-all.js",
     "postinstall": "node -e \"console.log('\\n'); require('fs').readFileSync('INICIO_RAPIDO.txt', 'utf8').split('\\n').forEach(l => console.log(l)); console.log('\\n');\""
