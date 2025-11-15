@@ -51,13 +51,17 @@ async function testMercadoPago() {
     const response = await preference.create({ body: testPreference });
     
     console.log('\n✓ ¡Preferencia creada exitosamente!');
-    console.log('  ID:', response.body.id);
-    console.log('  Init Point:', response.body.init_point || 'N/A');
-    console.log('  Sandbox Init Point:', response.body.sandbox_init_point || 'N/A');
+    
+    // El SDK v2 devuelve la respuesta directamente, no en response.body
+    const data = response.body || response;
+    
+    console.log('  ID:', data.id);
+    console.log('  Init Point:', data.init_point || 'N/A');
+    console.log('  Sandbox Init Point:', data.sandbox_init_point || 'N/A');
     
     console.log('\n✓ Las credenciales de MercadoPago son válidas');
     console.log('\nPuedes usar este enlace para probar el pago:');
-    console.log(response.body.init_point || response.body.sandbox_init_point);
+    console.log(data.init_point || data.sandbox_init_point);
     
   } catch (error) {
     console.error('\n✗ Error al probar MercadoPago:');
