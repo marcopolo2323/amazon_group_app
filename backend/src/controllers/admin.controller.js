@@ -354,13 +354,21 @@ async function getAllTransactions(req, res, next) {
       { $unwind: { path: '$affiliate', preserveNullAndEmptyArrays: true } },
       {
         $project: {
-          id: { $toString: '$_id' },
           orderId: { $toString: '$orderId' },
-          affiliateName: '$affiliate.name',
-          affiliateAmount: 1,
-          platformAmount: 1,
-          status: 1,
-          paymentGatewayId: 1,
+          affiliateId: {
+            _id: { $toString: '$affiliate._id' },
+            name: '$affiliate.name',
+            email: '$affiliate.email',
+          },
+          amount: '$affiliateAmount',
+          commission: '$platformAmount',
+          status: {
+            $cond: {
+              if: { $eq: ['$status', 'completed'] },
+              then: 'paid',
+              else: 'pending'
+            }
+          },
           createdAt: 1,
         },
       },
@@ -385,9 +393,24 @@ async function getAllTransactions(req, res, next) {
 // Obtener pagos pendientes por afiliado
 async function getPendingPayments(req, res, next) {
   try {
-    // Agrupa transacciones completadas por afiliado
+    // Primero obtener los IDs de transacciones que ya fueron pagadas
+    const AffiliatePayment = require('../models/AffiliatePayment');
+    const paidTransactions = await AffiliatePayment.aggregate([
+      { $match: { status: { $in: ['pending', 'completed'] } } },
+      { $unwind: '$transactionIds' },
+      { $group: { _id: null, ids: { $addToSet: '$transactionIds' } } },
+    ]);
+
+    const paidTransactionIds = paidTransactions.length > 0 ? paidTransactions[0].ids : [];
+
+    // Agrupa transacciones completadas por afiliado que no han sido pagadas
     const pendingPayments = await Transaction.aggregate([
-      { $match: { status: 'completed' } },
+      { 
+        $match: { 
+          status: 'completed',
+          _id: { $nin: paidTransactionIds }
+        } 
+      },
       {
         $lookup: {
           from: 'orders',
@@ -422,6 +445,7 @@ async function getPendingPayments(req, res, next) {
           affiliateEmail: { $first: '$affiliate.email' },
           totalAmount: { $sum: '$affiliateAmount' },
           transactionCount: { $sum: 1 },
+          transactionIds: { $push: '$_id' },
           bankAccount: { $first: '$affiliateInfo.bankAccount' },
           yapePhone: { $first: '$affiliateInfo.yapePhone' },
         },
