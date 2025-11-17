@@ -1,4 +1,5 @@
 const { createAffiliate, listAffiliates, affiliateStats } = require('../services/affiliates.service');
+const { notifyAffiliateApproved, notifyAffiliateRejected } = require('../services/notifications.service');
 
 async function create(req, res, next) {
   try {

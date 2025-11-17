@@ -3,6 +3,7 @@ const Order = require('../models/Order');
 const Service = require('../models/Service');
 const Transaction = require('../models/Transaction');
 const { Types } = require('mongoose');
+const { notifyOrderCreated } = require('./notifications.service');
 
 async function createOrder(input) {
   // clientId viene del token (controlador)
@@ -49,6 +50,18 @@ async function createOrder(input) {
   if (paymentStatus === 'completed') {
     const affiliateAmount = Math.max(amount - commission, 0);
     await Transaction.create({ orderId: order._id, affiliateAmount, platformAmount: commission, status: 'completed' });
+  }
+
+  // Notificar a cliente y afiliado
+  try {
+    await notifyOrderCreated(
+      order._id.toString(),
+      clientId.toString(),
+      affiliateId.toString(),
+      service.title
+    );
+  } catch (err) {
+    console.error('Error sending order notifications:', err);
   }
 
   return order;
