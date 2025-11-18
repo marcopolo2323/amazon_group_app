@@ -15,6 +15,7 @@ const admin = require('./admin');
 const affiliatePayments = require('./affiliate-payments');
 const notifications = require('./notifications');
 const disputes = require('./disputes');
+const reports = require('./reports');
 
 const router = Router();
 
@@ -32,6 +33,7 @@ router.use('/payments', payments);
 router.use('/reviews', reviews);
 router.use('/config', configCheck);
 router.use('/admin', admin);
+router.use('/admin/reports', reports);
 router.use('/affiliate-payments', affiliatePayments);
 router.use('/notifications', notifications);
 router.use('/disputes', disputes);

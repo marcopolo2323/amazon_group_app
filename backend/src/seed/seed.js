@@ -172,13 +172,13 @@ async function up() {
       return await Affiliate.create({
         affiliateId: user._id,
         dni: `${12345678 + index}`,
-        dniDocument: `https://example.com/dni/${user._id}.jpg`,
+        dniDocument: `https://images.unsplash.com/photo-1633409361618-c73427e4e206?w=400&h=300&fit=crop`,
         status: statuses[index],
         termsAccepted: true,
         termsAcceptedAt: new Date(),
         documentsComplete: statuses[index] === "approved",
         bankAccount: {
-          bank: "BCP",
+          bank: index === 0 ? "BCP" : index === 1 ? "Interbank" : index === 2 ? "BBVA" : "Scotiabank",
           number: `19100${1000000 + index}`,
           accountType: "savings",
         },
