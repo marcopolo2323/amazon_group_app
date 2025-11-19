@@ -9,6 +9,9 @@ const { notifyAffiliateApproved, notifyAffiliateRejected } = require('../service
 // Dashboard stats para admin
 async function getDashboardStats(req, res, next) {
   try {
+    console.log('=== ADMIN DASHBOARD STATS REQUEST ===');
+    console.log('User:', req.user);
+    console.log('User role:', req.user?.role);
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);

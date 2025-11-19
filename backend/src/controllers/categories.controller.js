@@ -1,4 +1,4 @@
-const { createCategory, listCategories } = require('../services/categories.service');
+const { createCategory, listCategories, getCategoriesWithServiceCount } = require('../services/categories.service');
 
 async function create(req, res, next) {
   try {
@@ -18,6 +18,15 @@ async function list(req, res, next) {
   }
 }
 
-module.exports = { create, list };
+async function getWithServiceCount(req, res, next) {
+  try {
+    const items = await getCategoriesWithServiceCount();
+    res.json(items);
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { create, list, getWithServiceCount };
 
 

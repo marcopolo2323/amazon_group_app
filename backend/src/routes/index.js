@@ -21,6 +21,24 @@ const router = Router();
 
 router.get('/health', (req, res) => res.json({ ok: true }));
 
+// Endpoint de prueba para email (solo desarrollo)
+if (process.env.NODE_ENV === 'development') {
+  router.get('/test-email', async (req, res) => {
+    try {
+      const { sendEmail } = require('../utils/email');
+      const sent = await sendEmail({
+        to: 'lloydtj01@gmail.com',
+        subject: 'Test Email',
+        text: 'This is a test email',
+        html: '<p>This is a test email</p>'
+      });
+      res.json({ sent, message: sent ? 'Email sent' : 'Email failed' });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+}
+
 router.use('/users', users);
 router.use('/affiliates', affiliates);
 router.use('/affiliate-documents', affiliateDocuments);

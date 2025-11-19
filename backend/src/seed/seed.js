@@ -72,8 +72,9 @@ async function up() {
     { name: "Decoración para fiestas", icon: "gift-outline", order: 8 },
     { name: "Zapatos", icon: "footsteps-outline", order: 9 },
     { name: "Ropa", icon: "shirt-outline", order: 10 },
-    { name: "Limpieza del hogar", icon: "home-outline", order: 11 },
+    { name: "Limpieza del hogar", icon: "sparkles", order: 11 },
     { name: "Reparaciones", icon: "build-outline", order: 12 },
+    { name: "Otros", icon: "ellipsis-horizontal-outline", order: 13 },
   ];
 
   const categories = await Category.insertMany(categoriesData);

@@ -117,15 +117,28 @@ async function register(req, res, next) {
  // Forgot password -> envía enlace con token
 async function forgotPassword(req, res, next) {
   try {
+    console.log('=== FORGOT PASSWORD REQUEST ===');
+    console.log('Email:', req.body.email);
+    
     const { email } = req.body;
     const user = await User.findOne({ email });
-    if (!user) return res.json({ ok: true }); // no filtra si existe o no
+    if (!user) {
+      console.log('User not found for forgot password:', email);
+      return res.json({ ok: true }); // no filtra si existe o no
+    }
+    
+    console.log('User found for forgot password:', user.email);
 
     // Genera token seguro y expiración
     const token = crypto.randomBytes(32).toString('hex');
     const exp = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos
     user.resetToken = token;
     user.resetTokenExp = exp;
+    
+    console.log('Generated reset token:', { 
+      tokenLength: token.length, 
+      expiresAt: exp.toISOString() 
+    });
     // Limpia flujo por código por compatibilidad
     user.resetCode = undefined;
     user.resetCodeExp = undefined;
@@ -135,13 +148,47 @@ async function forgotPassword(req, res, next) {
     const base = getFrontendUrl();
     const url = `${base.replace(/\/$/, '')}/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
 
-    const sent = await sendEmail({
-      to: email,
-      subject: 'Restablecer contraseña',
-      text: `Haz clic en el siguiente enlace para restablecer tu contraseña (expira en 15 minutos): ${url}`,
-      html: `<p>Haz clic en el siguiente enlace para restablecer tu contraseña. Este enlace expira en 15 minutos.</p><p><a href="${url}">Restablecer contraseña</a></p>`
+    console.log('Reset URL generated:', url);
+    
+    // Intentar enviar email pero no fallar si no se puede
+    let sent = false;
+    try {
+      sent = await sendEmail({
+        to: email,
+        subject: 'Restablecer contraseña - Amazon Group',
+        text: `Haz clic en el siguiente enlace para restablecer tu contraseña (expira en 15 minutos): ${url}
+
+Si no solicitaste este cambio, ignora este correo.
+
+Token: ${token}
+Email: ${email}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2>Restablecer contraseña</h2>
+            <p>Haz clic en el siguiente enlace para restablecer tu contraseña. Este enlace expira en 15 minutos.</p>
+            <p><a href="${url}" style="background-color: #2563EB; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">Restablecer contraseña</a></p>
+            <p>Si el enlace no funciona, copia y pega la siguiente información en la app:</p>
+            <p><strong>Token:</strong> ${token}</p>
+            <p><strong>Email:</strong> ${email}</p>
+            <p>Si no solicitaste este cambio, ignora este correo.</p>
+          </div>
+        `
+      });
+    } catch (emailError) {
+      console.error('Email sending failed:', emailError.message);
+      sent = false;
+    }
+    
+    console.log('Email sent:', sent);
+    
+    // Siempre responder exitosamente, incluso si el email falló
+    // El token se guardó en la base de datos, eso es lo importante
+    res.json({ 
+      ok: true, 
+      delivered: sent,
+      message: sent ? 'Email enviado exitosamente' : 'Token generado (email no enviado)',
+      token: process.env.NODE_ENV === 'development' ? token : undefined // Solo en desarrollo
     });
-    res.json({ ok: true, delivered: sent });
   } catch (err) {
     next(err);
   }
@@ -150,9 +197,23 @@ async function forgotPassword(req, res, next) {
  // Reset password usando token o código (compatibilidad)
 async function resetPassword(req, res, next) {
   try {
+    console.log('=== RESET PASSWORD REQUEST ===');
+    console.log('Body:', { email: req.body.email, hasToken: !!req.body.token, hasCode: !!req.body.code, hasPassword: !!req.body.password });
+    
     const { email, code, token, password } = req.body;
     const user = await User.findOne({ email });
-    if (!user) throw createError(400, 'Solicitud inválida');
+    if (!user) {
+      console.log('User not found for email:', email);
+      throw createError(400, 'Solicitud inválida');
+    }
+    
+    console.log('User found:', { 
+      email: user.email, 
+      hasResetToken: !!user.resetToken, 
+      hasResetCode: !!user.resetCode,
+      resetTokenExp: user.resetTokenExp,
+      resetCodeExp: user.resetCodeExp
+    });
 
     if (token) {
       if (!user.resetToken || !user.resetTokenExp) throw createError(400, 'Token inválido');
