@@ -20,8 +20,23 @@ const serviceSchema = new Schema(
     cancellationPolicy: { type: String },
     tags: [{ type: String }],
 
-    // Location information
+    // Location information (GeoJSON format for geospatial queries)
     location: {
+      type: {
+        type: String,
+        enum: ['Point'],
+        default: 'Point'
+      },
+      coordinates: {
+        type: [Number], // [longitude, latitude]
+        index: '2dsphere'
+      },
+      address: { type: String },
+      city: { type: String },
+    },
+
+    // Legacy location fields for backwards compatibility
+    locationLegacy: {
       lat: { type: Number },
       lng: { type: Number },
       address: { type: String },

@@ -220,8 +220,8 @@ async function up() {
         "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800",
       ],
       location: {
-        lat: -12.0464,
-        lng: -77.0428,
+        type: "Point",
+        coordinates: [-77.0428, -12.0464], // [longitude, latitude] para GeoJSON
         address: "Jr. Ucayali 234, Centro Histórico, Lima",
         city: "Lima",
       },
@@ -260,9 +260,9 @@ async function up() {
       images: [
         "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=800",
       ],
-      location: { 
-        lat: -12.1, 
-        lng: -77.05, 
+      location: {
+        type: "Point",
+        coordinates: [-77.05, -12.1], // [longitude, latitude] para GeoJSON
         address: "Toda Lima Metropolitana",
         city: "Lima",
       },
@@ -301,9 +301,9 @@ async function up() {
       images: [
         "https://images.unsplash.com/photo-1555244162-803834f70033?w=800",
       ],
-      location: { 
-        lat: -12.08, 
-        lng: -77.03, 
+      location: {
+        type: "Point",
+        coordinates: [-77.03, -12.08], // [longitude, latitude] para GeoJSON
         address: "San Borja, Lima",
         city: "Lima",
       },
@@ -341,9 +341,9 @@ async function up() {
       images: [
         "https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=800",
       ],
-      location: { 
-        lat: -12.06, 
-        lng: -77.04, 
+      location: {
+        type: "Point",
+        coordinates: [-77.04, -12.06], // [longitude, latitude] para GeoJSON
         address: "Lima Metropolitana",
         city: "Lima",
       },
@@ -382,8 +382,8 @@ async function up() {
         "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800",
       ],
       location: {
-        lat: -12.045,
-        lng: -77.035,
+        type: "Point",
+        coordinates: [-77.035, -12.045], // [longitude, latitude] para GeoJSON
         address: "Plaza Mayor, Centro de Lima",
         city: "Lima",
       },
