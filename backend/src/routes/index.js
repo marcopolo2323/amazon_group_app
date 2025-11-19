@@ -21,7 +21,7 @@ const router = Router();
 
 router.get('/health', (req, res) => res.json({ ok: true }));
 
-// Endpoint de prueba para email (solo desarrollo)
+// Endpoints de desarrollo
 if (process.env.NODE_ENV === 'development') {
   router.get('/test-email', async (req, res) => {
     try {
@@ -33,6 +33,42 @@ if (process.env.NODE_ENV === 'development') {
         html: '<p>This is a test email</p>'
       });
       res.json({ sent, message: sent ? 'Email sent' : 'Email failed' });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  router.get('/debug/users', async (req, res) => {
+    try {
+      const User = require('../models/User');
+      const users = await User.find({}, 'email role name').limit(10);
+      res.json({ users, count: users.length });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  router.post('/debug/create-admin', async (req, res) => {
+    try {
+      const User = require('../models/User');
+      const { hashPassword } = require('../utils/auth');
+      
+      // Verificar si ya existe un admin
+      const existingAdmin = await User.findOne({ role: 'admin' });
+      if (existingAdmin) {
+        return res.json({ message: 'Admin already exists', admin: existingAdmin.email });
+      }
+
+      // Crear admin
+      const hashedPassword = await hashPassword('admin123456');
+      const admin = await User.create({
+        role: 'admin',
+        name: 'Admin System',
+        email: 'admin@amazongroup.com',
+        password: hashedPassword,
+      });
+
+      res.json({ message: 'Admin created', admin: admin.email });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
